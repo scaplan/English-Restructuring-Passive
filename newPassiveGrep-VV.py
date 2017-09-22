@@ -40,7 +40,7 @@ def grepForRestructuringPassive(inputDir):
 						if currRoot == 'be':
 							foundRestructuring = searchForRestructuring(currFile, wordQueue)
 							if foundRestructuring:
-								readNlines(currFile, wordQueue, 10)
+								readNlines(currFile, wordQueue, 12)
 								outputContext = ' '.join(wordQueue)
 								print outputContext
 					#print wordQueue
@@ -59,7 +59,8 @@ def searchForRestructuring(currFile, wordQueue):
 		currRoot = currLineTokens[1]
 		currPOS = currLineTokens[2]
 		# set this to be any verb?
-		if readLines == 0 and currWord not in restructuringSet:
+	#	if readLines == 0 and currWord not in restructuringSet:
+		if readLines == 0 and 'v' not in currPOS:
 			return False
 		elif readLines == 1 and currWord != 'to':
 			return False
@@ -67,7 +68,7 @@ def searchForRestructuring(currFile, wordQueue):
 	#		print currEntry, currWord
 			return False
 		elif readLines == 3 and 'v' not in currPOS:
-	#		print currEntry, currWord
+			print currEntry, currWord
 			return False
 		wordQueue.append(currWord)
 		currEntry += currWord + ' '

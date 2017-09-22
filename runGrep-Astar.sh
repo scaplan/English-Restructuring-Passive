@@ -25,7 +25,7 @@ for currSubCorpus in "${subCorpora[@]}"; do
 	echo 'Starting (background): '$currSubCorpus
 	#python identifyPhrasalVerbs.py $directorySource $currSubCorpus $resultSource &
 	
-	python newPassiveGrep.py $directorySource $currSubCorpus
+	python newPassiveGrep-Astar.py $directorySource $currSubCorpus
 	echo '\n'
 #	LAST_PID=$!
 #	background_PID_list+=($LAST_PID)

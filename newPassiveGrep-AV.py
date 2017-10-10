@@ -68,7 +68,7 @@ def searchForRestructuring(currFile, wordQueue):
 	#		print currEntry, currWord
 			return False
 		elif readLines == 3 and 'v' not in currPOS:
-			print currEntry, currWord
+	#		print currEntry, currWord
 			return False
 		wordQueue.append(currWord)
 		currEntry += currWord + ' '

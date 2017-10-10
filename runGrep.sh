@@ -6,8 +6,8 @@
 
 scriptSource='/home1/s/spcaplan/Dropbox/penn_CS_account/English-Restructuring-Passive/'
 #directorySource='/mnt/pollux-new/cis/nlp/data/corpora/COCA/Word_lemma_PoS'
-#directorySource='/mnt/pollux-new/cis/nlp/data/corpora/COCA/Tagged-By-Sentence/'
-directorySource='/mnt/pollux-new/cis/nlp/data/corpora/COCA/Tagged-By-Sentence/temp/'
+directorySource='/mnt/pollux-new/cis/nlp/data/corpora/COCA/Tagged-By-Sentence/'
+#directorySource='/mnt/pollux-new/cis/nlp/data/corpora/COCA/Tagged-By-Sentence/temp/'
 #resultSource='/mnt/nlpgridio2/nlp/users/spcaplan/phrasalVerbs-output'
 
 cd $scriptSource
@@ -21,7 +21,8 @@ cd $scriptSource
 #subCorpora=("acad_" "fic_" "mag_" "news_" "spok_")
 subCorpora=("spok_")
 
-evalSource=$scriptSource'sampleLangModEvalSentences.txt'
+evalSource=$scriptSource'sampleStims.txt'
+stimProbs=$scriptSource'sampleStimProbs.csv'
 
 background_PID_list=()
 
@@ -35,7 +36,7 @@ for currSubCorpus in "${subCorpora[@]}"; do
 #	background_PID_list+=($LAST_PID)
 	
 	# check 'pickle' for persistence of trained langMod between iterations
-	python langModTrain.py $directorySource $currSubCorpus $evalSource
+	python langModTrain.py $directorySource $evalSource > stimProbs
 
 done
 

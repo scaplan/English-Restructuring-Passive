@@ -20,52 +20,42 @@ contextToFreqDict = {} # give contextWord as key, get back freqDict (give target
 	# Add $UNK$ entry with psuedo-count of 1, so that these can be converted to probabilities up front (before testing)
 
 def iterateDirectory(inputDir):
-	global subCorpus
-
 	lineCount = 0
 	for fileName in os.listdir(inputDir):
 		filePath = inputDir + '/' + fileName
-		if (subCorpus in fileName):
 		#	print filePath
-			with open(filePath, 'r') as currFile:
+		with open(filePath, 'r') as currFile:
+			currLine = currFile.readline()
+			while currLine:
+				currLine = currLine.strip().lower().replace("@", "")
+				currLine = 'PADDING ' + currLine
+				currLineTuples = currLine.split('|')
+				evalSentence(currLineTuples)
+				
 				currLine = currFile.readline()
-				while currLine:
-					currLine = currLine.strip().lower().replace("@", "")
-					currLineTuples = currLine.split('|')
-					
-					evalSentence(currLineTuples)
-					
-					currLine = currFile.readline()
-					lineCount +=1
-					if lineCount % 1000 == 0:
-						print 'Read ' + str(lineCount) + ' lines'
+				lineCount +=1
+				if lineCount % 10000 == 0:
+					print 'Read ' + str(lineCount) + ' lines'
 
 def evalSentence(inputTuples):
-	prevWord = '$START$'
+	prevWord = ''
 	incrementDict(frequencyDict, prevWord)
-	#sentence = [] #temp
-	#sentence.append(prevWord)
 	for currTuple in inputTuples:
 		currWords = currTuple.split(' ')
 		currWord = currWords[0]
 		incrementDict(frequencyDict, currWord)
 		incrementNestedDict(contextToFreqDict, prevWord, currWord)
-		#sentence.append(currWord)
-		# add to lang mod dict here
 		prevWord = currWord
-	currWord = '$END$'
+	currWord = 'END'
 	incrementDict(frequencyDict, currWord)
 	incrementNestedDict(contextToFreqDict, prevWord, currWord)
-	#sentence.append(currWord)
-	#print ' '.join(sentence)
-	#update dict one last time
 
 def convertFreqDictToProbs():
-	incrementDict(frequencyDict, '$UNK$')
+	incrementDict(frequencyDict, 'UNK')
 	freqSum = sum(frequencyDict.values())
 	for word in frequencyDict:
 		currFreq = accessDictEntry(frequencyDict, word)
-		currProb = float(currFreq) / freqSum
+		currProb = safeDivide(currFreq, freqSum)
 		unigramProbDict[word] = currProb
 
 	# convert bigrams to probabilities
@@ -75,7 +65,7 @@ def convertFreqDictToProbs():
 		for targetKey in contextDict:
 			bigramFreq = accessDictEntry(contextDict, targetKey)
 			contextSum = sum(contextDict.values())
-			currProb = float(bigramFreq) / contextSum
+			currProb = safeDivide(bigramFreq, contextSum)
 			nestedBigramProbs[targetKey] = currProb
 		bigramProbDict[contextKey] = nestedBigramProbs
 
@@ -86,19 +76,17 @@ def runTestFile(testFileName):
 			currLine = currLine.strip().lower()
 			currLineWords = currLine.split(' ')
 			currLineProbs = []
-			prevWord = '$START$'
+			prevWord = 'PADDING'
 			for currWord in currLineWords:
 				if currWord not in unigramProbDict:
-					currWord = '$UNK$'
+					currWord = 'UNK'
 				currFreq = accessDictEntry(frequencyDict, currWord)
 				currCondFreq = accessNestedDictEntry(contextToFreqDict, prevWord, currWord)
 				currunigramProb = accessDictEntry(unigramProbDict, currWord)
 				currBigramProb = accessNestedDictEntry(bigramProbDict, prevWord, currWord)
 				currLineProbs.append(str(currBigramProb))
-			#	print currWord + ' :Freq: ' + str(currFreq) + ' ' + str(currunigramProb)
-			#	print prevWord + ' ' + currWord + ' :Cond: ' + str(currCondFreq) + ' ' + str(currBigramProb)
 				prevWord = currWord
-			currWord = '$END$'
+			currWord = 'END'
 			currFreq = accessDictEntry(frequencyDict, currWord)
 			currCondFreq = accessNestedDictEntry(contextToFreqDict, prevWord, currWord)
 			currunigramProb = accessDictEntry(unigramProbDict, currWord)
@@ -108,8 +96,6 @@ def runTestFile(testFileName):
 			print currLineWords
 			print currLineProbsToPrint
 			print ''
-		#	print currWord + ' :Freq: ' + str(currFreq) + ' ' + str(currunigramProb)
-		#	print prevWord + ' ' + currWord + ' :Cond: ' + str(currCondFreq) + ' ' + str(currBigramProb)
 			currLine = testFile.readline()
 
 def incrementNestedDict(dictionary, highKey, nestedKey):
@@ -154,12 +140,17 @@ def safeDivide(numerator, denominator):
 if __name__=="__main__":
 
 	cocaSourceDir = sys.argv[1]
-	subCorpus = sys.argv[2]
-	testFileName = sys.argv[3]
+	testFileName = sys.argv[2]
 	print cocaSourceDir
 
 	iterateDirectory(cocaSourceDir)
 
 	convertFreqDictToProbs()
+
+	#print 'START DICT:'
+	#startContextDict = contextToFreqDict.get('PADDING')
+	#for key in startContextDict.keys():
+	#	print key, str(accessDictEntry(startContextDict, key))
+
 
 	runTestFile(testFileName)

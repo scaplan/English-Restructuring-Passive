@@ -24,6 +24,9 @@ def iterateDirectory(inputDir):
 	for fileName in os.listdir(inputDir):
 		filePath = inputDir + '/' + fileName
 		#	print filePath
+		if os.path.isdir(filePath):
+			#skip directories
+			continue
 		with open(filePath, 'r') as currFile:
 			currLine = currFile.readline()
 			while currLine:
@@ -33,9 +36,9 @@ def iterateDirectory(inputDir):
 				evalSentence(currLineTuples)
 				
 				currLine = currFile.readline()
-				lineCount +=1
-				if lineCount % 10000 == 0:
-					print 'Read ' + str(lineCount) + ' lines'
+			#	lineCount +=1
+			#	if lineCount % 10000 == 0:
+			#		print 'Read ' + str(lineCount) + ' lines'
 
 def evalSentence(inputTuples):
 	prevWord = ''
@@ -93,9 +96,9 @@ def runTestFile(testFileName):
 			currBigramProb = accessNestedDictEntry(bigramProbDict, prevWord, currWord)
 			currLineProbs.append(str(currBigramProb))
 			currLineProbsToPrint = ' '.join(currLineProbs)
-			print currLineWords
+			print currLine
 			print currLineProbsToPrint
-			print ''
+		#	print ''
 			currLine = testFile.readline()
 
 def incrementNestedDict(dictionary, highKey, nestedKey):
@@ -141,7 +144,8 @@ if __name__=="__main__":
 
 	cocaSourceDir = sys.argv[1]
 	testFileName = sys.argv[2]
-	print cocaSourceDir
+	# print cocaSourceDir
+	#print 'Starting'
 
 	iterateDirectory(cocaSourceDir)
 
@@ -154,3 +158,5 @@ if __name__=="__main__":
 
 
 	runTestFile(testFileName)
+
+	#print 'Completed'

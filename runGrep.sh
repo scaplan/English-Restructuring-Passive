@@ -22,7 +22,7 @@ cd $scriptSource
 subCorpora=("spok_")
 
 evalSource=$scriptSource'sampleStims.txt'
-stimProbs=$scriptSource'sampleStimProbs.csv'
+stimProbs=$scriptSource'sampleStimProbs_full.csv'
 
 background_PID_list=()
 
@@ -36,7 +36,7 @@ for currSubCorpus in "${subCorpora[@]}"; do
 #	background_PID_list+=($LAST_PID)
 	
 	# check 'pickle' for persistence of trained langMod between iterations
-	python langModTrain.py $directorySource $evalSource > stimProbs
+	python langModTrain.py $directorySource $evalSource > $stimProbs
 
 done
 
